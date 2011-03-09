@@ -66,7 +66,7 @@ class Bullhorn
 
       post_options = {
         :api_key      => api_key,
-        :message      => exception.message,
+        :message      => exception.message[0..100],
         :backtrace    => Bullhorn::Sender.serialize(bt.to_a),
         :env          => Bullhorn::Sender.serialize({}),
         :request_body => Bullhorn::Sender.serialize(""),
@@ -79,7 +79,6 @@ class Bullhorn
         :class          => exception.class.to_s
       }
 
-      puts post_options.inspect
       Net::HTTP.post_form(URI(Bullhorn::URL), post_options)
       
     end
