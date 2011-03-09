@@ -64,12 +64,12 @@ class Bullhorn
 
       bt = Bullhorn::Backtrace.new(exception, :context => @show_code_context)
 
-      Net::HTTP.post_form(URI(Bullhorn::URL), {
+      post_options = {
         :api_key      => api_key,
         :message      => exception.message,
         :backtrace    => Bullhorn::Sender.serialize(bt.to_a),
-        :env          => Bullhorn::Sender.serialize(nil),
-        :request_body => Bullhorn::Sender.serialize(nil),
+        :env          => Bullhorn::Sender.serialize({}),
+        :request_body => Bullhorn::Sender.serialize(""),
         :sha1         => Bullhorn::Sender.sha1(exception),
         # APIv2
         :language       => Bullhorn::LANGUAGE,
@@ -77,7 +77,10 @@ class Bullhorn
         :client_version => Bullhorn::VERSION,
         :url            => "",
         :class          => exception.class.to_s
-      })
+      }
+
+      puts post_options.inspect
+      Net::HTTP.post_form(URI(Bullhorn::URL), post_options)
       
     end
   end
