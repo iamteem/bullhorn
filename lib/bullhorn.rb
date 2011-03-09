@@ -28,11 +28,11 @@ class Bullhorn
 
   def initialize(app, options = {})
     @app               = app
-    @api_key           = options[:api_key] || api_key || raise(ArgumentError, ":api_key is required")
-    @filters           = Array(options[:filters])
+    @api_key           = options[:api_key] || @@api_key || raise(ArgumentError, ":api_key is required")
+    @filters           = Array(options[:filters] || @@filters)
     @url               = options[:url] || URL
     @ignore_exceptions = Array(options[:ignore_exceptions] || default_ignore_exceptions)
-    @show_code_context = (options[:show_code_context].nil? ? true : options[:show_code_context])
+    @show_code_context = (options[:show_code_context].nil? ? (@@show_code_context || true) : options[:show_code_context])
   end
 
   def call(env)
@@ -51,12 +51,29 @@ class Bullhorn
   end
 
   class << self
+
     def api_key=(key)
       @@api_key = key
     end
-    
+
     def api_key
       @@api_key
+    end
+
+    def filters=(val)
+      @@filters = val
+    end
+
+    def filters
+      @@filters
+    end
+
+    def show_code_context=(val)
+      @@show_code_context
+    end
+
+    def show_code_context
+      @@show_code_context
     end
 
 
