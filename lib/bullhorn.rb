@@ -11,7 +11,7 @@ class Bullhorn
   autoload :Backtrace, "bullhorn/backtrace"
 
   LANGUAGE    = "ruby"
-  CLIENT_NAME = "bullhorn-ruby-test"
+  CLIENT_NAME = "bullhorn-ruby"
   VERSION = "0.1.0"
 
   URL = "http://www.bullhorn.it/api/v2/exception"
