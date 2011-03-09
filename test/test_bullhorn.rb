@@ -11,6 +11,12 @@ class TestBullhorn < Test::Unit::TestCase
     end
   end
 
+  test "accept the api key from class level" do
+    Bullhorn.api_key = "key"
+    Bullhorn.new(@app)
+    assert_equal Bullhorn.api_key, "key"
+  end
+
   test "accepts a filter of string arrays" do
     bullhorn = Bullhorn.new(@app, :api_key => "key", :filters => ['a', 'b'])
     assert_equal ['a', 'b'], bullhorn.filters

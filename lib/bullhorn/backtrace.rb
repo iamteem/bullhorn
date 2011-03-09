@@ -2,7 +2,7 @@ class Bullhorn
   class Backtrace
     def initialize(exception, options = {})
       @exception = exception
-      @raw       = exception.backtrace # Array
+      @raw       = exception.backtrace || [] # Array
       @options   = { :context => true }
 
       @options.merge!(options)
@@ -29,12 +29,14 @@ class Bullhorn
 
     def to_a
       @raw.inject([]) do |arr, line|
-        m = line.match(/^(?<file>.+):(?<line>[0-9]+):in `(?<function>.*)'$/)
-        arr << { :function => m[:function],
-          :file     => m[:file],
-          :line     => m[:line],
-          :context  => (@options[:context] ? get_context(m[:file], m[:line]) : nil)
-        }
+        m = line.match(/^(.+):([0-9]+):in `(.*)'$/)
+
+        arr << { :function => m[3],
+          :file     => m[1],
+          :line     => m[2],
+          :context  => (@options[:context] ? get_context(m[2], m[2]) : nil)
+        } if m
+
         arr
       end
     end

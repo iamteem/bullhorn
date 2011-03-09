@@ -11,7 +11,7 @@ class Bullhorn
   autoload :Backtrace, "bullhorn/backtrace"
 
   LANGUAGE    = "ruby"
-  CLIENT_NAME = "bullhorn-ruby"
+  CLIENT_NAME = "bullhorn-ruby-test"
   VERSION = "0.1.0"
 
   URL = "http://www.bullhorn.it/api/v2/exception"
@@ -28,7 +28,7 @@ class Bullhorn
 
   def initialize(app, options = {})
     @app               = app
-    @api_key           = options[:api_key] || raise(ArgumentError, ":api_key is required")
+    @api_key           = options[:api_key] || api_key || raise(ArgumentError, ":api_key is required")
     @filters           = Array(options[:filters])
     @url               = options[:url] || URL
     @ignore_exceptions = Array(options[:ignore_exceptions] || default_ignore_exceptions)
@@ -49,6 +49,39 @@ class Bullhorn
 
     [status, headers, body]
   end
+
+  class << self
+    def api_key=(key)
+      @@api_key = key
+    end
+    
+    def api_key
+      @@api_key
+    end
+
+
+    def notify_exception(exception)
+
+      bt = Bullhorn::Backtrace.new(exception, :context => @show_code_context)
+
+      Net::HTTP.post_form(URI(Bullhorn::URL), {
+        :api_key      => api_key,
+        :message      => exception.message,
+        :backtrace    => Bullhorn::Sender.serialize(bt.to_a),
+        :env          => Bullhorn::Sender.serialize(nil),
+        :request_body => Bullhorn::Sender.serialize(nil),
+        :sha1         => Bullhorn::Sender.sha1(exception),
+        # APIv2
+        :language       => Bullhorn::LANGUAGE,
+        :client_name    => Bullhorn::CLIENT_NAME,
+        :client_version => Bullhorn::VERSION,
+        :url            => "",
+        :class          => exception.class.to_s
+      })
+      
+    end
+  end
+  
 
 protected
   def default_ignore_exceptions
