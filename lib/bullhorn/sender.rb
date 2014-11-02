@@ -7,7 +7,7 @@ class Bullhorn
     end
 
     def notify(exception, env = {})
-      bt = Backtrace.new(exception, :context => @show_code_context)
+      bt = Bullhorn::Backtrace.new(exception, :context => @show_code_context)
 
       Net::HTTP.post_form(URI(url), {
         :api_key      => api_key,
@@ -25,14 +25,15 @@ class Bullhorn
       })
     end
 
-  protected
     def sha1(exception)
       # Treat 2 exceptions as the same if they match the same exception class
       # and same origin.
       salt = '#bh#' + Bullhorn::CLIENT_NAME
-      str  = [ salt, exception.class.to_s, exception.backtrace.first ].join('|')
+      str  = [ salt, exception.class.to_s, (exception.backtrace ? exception.backtrace.first : nil) ].join('|')
       Digest::SHA1.hexdigest(str)
     end
+
+  protected
 
     def request_body(env)
       if io = env['rack.input']
